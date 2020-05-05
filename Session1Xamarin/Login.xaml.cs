@@ -27,44 +27,47 @@ namespace Session1Xamarin
         protected override void OnAppearing()
         {
             base.OnAppearing();
+            loginPassword.Text = string.Empty;
+            loginUserID.Text = string.Empty;
         }
 
 
         private async void Button_Clicked(object sender, EventArgs e)
         {
 
-            var getUserTypeID = (from x in _user
-                                 where x.userTypeIdFK == 1
-                                 select x.userId).FirstOrDefault();
-
-            var getPassword = (from x in _user
-                               where x.userId == loginUserID.Text
-                               select x.userPw).FirstOrDefault();
-
-               if (loginUserID.Text == getUserTypeID && loginPassword.Text == getPassword) {
-
+            if (loginPassword.Text.Trim() == string.Empty || loginUserID.Text.Trim() == string.Empty)
+            {
+                await DisplayAlert("Login", "Fields cannot be empty!", "Ok");
+            }
+            else
+            {
                 using (var webClient = new WebClient())
                 {
-
-                
-                    webClient.Headers.Add("Content-type", "application/json");
-                    var response = await webClient.UploadDataTaskAsync("http://10.0.2.2:57325/Users/Login?username=" 
-                        + getUserTypeID + "&password=" + getPassword, "POST", Encoding.UTF8.GetBytes(""));
-                    if (Encoding.Default.GetString(response) != null)
+                    webClient.Headers.Add("Content-Type", "application/json");
+                    var response = await webClient.UploadDataTaskAsync($"http://10.0.2.2:57325/Users/Login?username={loginUserID.Text}&password={loginPassword.Text}", "POST",
+                        Encoding.UTF8.GetBytes(""));
+                    if (Encoding.Default.GetString(response) != "\"user does not exists.\"")
                     {
-
-                        /*var jsonResult = JsonConvert.DeserializeObject(response);*/
-                        await DisplayAlert("Login", "Successful", "Ok");
-                        await Navigation.PopAsync();
+                        var user = JsonConvert.DeserializeObject<User>(Encoding.Default.GetString(response));
+                        if (user.userTypeIdFK == 1)
+                        {
+                            await DisplayAlert("Login", $"Welcome {user.userName}!", "Ok");
+                           
+                        }
+                        else
+                        {
+                            await DisplayAlert("Login", $"Welcome {user.userName}! You are not a manager!", "Ok");
+                            loginPassword.Text = string.Empty;
+                        }
                     }
                     else
                     {
-                        await DisplayAlert("Login", "Unsuccessful", "Ok");
+                        await DisplayAlert("Login", "Invalid User", "Ok");
+                        loginPassword.Text = string.Empty;
                     }
                 }
             }
-               
-            
+
         }
     }
 }

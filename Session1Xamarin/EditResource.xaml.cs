@@ -10,11 +10,13 @@ using Xamarin.Forms.Xaml;
 namespace Session1Xamarin
 {
     [XamlCompilation(XamlCompilationOptions.Compile)]
-    public partial class Page2 : ContentPage
+    public partial class EditResource : ContentPage
     {
-        public Page2()
+        public EditResource(string ResourceName)
         {
             InitializeComponent();
+            resourceName = ResourceName;
+           
         }
     }
 }
