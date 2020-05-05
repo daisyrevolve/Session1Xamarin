@@ -12,6 +12,7 @@ namespace Session1Xamarin
     [XamlCompilation(XamlCompilationOptions.Compile)]
     public partial class EditResource : ContentPage
     {
+        string resourceName;
         public EditResource(string ResourceName)
         {
             InitializeComponent();
